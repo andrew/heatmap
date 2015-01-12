@@ -1,5 +1,3 @@
-require 'heatmap/base'
-
 module Heatmap
   class Density < Base
     # Group duplicate points and set each point value based on the total number of points

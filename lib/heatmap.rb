@@ -2,9 +2,9 @@
 require 'kdtree'
 
 # HEATMAP
-require 'heatmap/base'
-require 'heatmap/density'
-require 'heatmap/weighted_average'
+require_relative 'heatmap/base'
+require_relative 'heatmap/density'
+require_relative 'heatmap/weighted_average'
 
 module Heatmap
 end

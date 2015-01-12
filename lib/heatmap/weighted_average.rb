@@ -1,5 +1,3 @@
-require 'heatmap/base'
-
 module Heatmap
   class WeightedAverage < Base
     def optimize_points(points)
