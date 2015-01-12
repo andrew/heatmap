@@ -57,8 +57,6 @@ module Heatmap
       ((3 - 0) * (val - 0)) / (max - 0) + 0
     end
 
-    private
-
     # NOTE: this calculation is not accurate for extreme latitudes
     def pixel_to_ll(x,y)
       delta_lat = @max_lat-@min_lat
@@ -102,6 +100,8 @@ module Heatmap
 
       return x, y
     end
+
+    private
 
     # Distance between two points in 2D space
     def distance(x1,y1,x2,y2)
