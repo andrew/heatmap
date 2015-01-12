@@ -1,17 +1,12 @@
 module Heatmap
   class Base
-    UNPROCESSED_PIXEL = [255,0,0,0] # Fill the picture with these pixels which should be distinguishable from the transparent pixel so we can tell if the pixel has been processed
-    TRANSPARENT_PIXEL = [0,0,0,0]
+    UNPROCESSED_PIXEL = -1 # Fill the picture with these pixels which should be distinguishable from the transparent pixel so we can tell if the pixel has been processed
+    TRANSPARENT_PIXEL = 0
 
     # OPTIONS:
     #  :bounds => [max_lat, max_lng, min_lat, min_lng]
     #  :height => height in px of the output image (width is determined by the bounding box aspect ratio)
     #  :effect_distance => distance in decimal degrees over which we ignore the influence of points
-    #  :legend => a hash of rgba colour stops to colour the map by
-    #    e.g.  {1    => [235, 46, 46, 255],
-    #           0.5  => [253, 253, 45, 255],
-    #           0.25 => [0, 158, 84, 255],
-    #           0    => [50, 52, 144, 255]}
 
     attr_reader :pixels, :points
 
@@ -26,27 +21,12 @@ module Heatmap
 
       @points = points
 
-      # Unless a legend has been specified, colour everything based on the max value
-      if @options[:legend]
-        @options[:legend] = @options[:legend].sort_by {|k,v| -k } # Ensure the legend is sorted descending
-      else
-        # max_val = points.collect(&:value).max
-        # points.each{|p| p.value = p.value / max_val}
-        @options[:legend] = {
-          1 => [235, 46, 46, 255], # red
-          0.5  => [253, 253, 45, 255], # yellow
-          0.25  => [0, 158, 84, 255], # green
-          0    => [50, 52, 144, 255] # blue
-        }
-      end
-
       # Build pixels in scanline order, left to right, top to bottom
       pixels = Array.new(@output_height) { Array.new(@output_width, UNPROCESSED_PIXEL) }
 
       effect_distance_in_px = ll_to_pixel(0, @options[:effect_distance])[0] - ll_to_pixel(0, 0)[0] + 1 # Round up so edges don't get clipped
 
       @points.each do |point|
-
         # Only render the pixels that are affected by a point
         x, y = ll_to_pixel(point.lat, point.lng)
 
@@ -64,16 +44,6 @@ module Heatmap
 
       @pixels = pixels
 
-    end
-
-    def image
-      @image.to_blob do |image|
-        image.format = 'png'
-      end
-    end
-
-    def save(filename)
-      @image.write(filename)
     end
 
     private
@@ -142,6 +112,7 @@ module Heatmap
     end
 
     def colour(val)
+      return [val]
       floor = @options[:legend].detect{|key, value| val >= key }
       ceiling = @options[:legend].to_a.reverse.detect{|key, value| val < key }
 

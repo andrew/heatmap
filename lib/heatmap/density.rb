@@ -31,9 +31,7 @@ module Heatmap
         value += point.value * (1 - dist / @options[:effect_distance])
       end
 
-      colr = colour(value)
-      colr[3] = [1, (1 - closest_dist.to_f / @options[:effect_distance])].min * 255 # Assign alpha value based on the distance to the closest point
-      return any ? colr : TRANSPARENT_PIXEL
+      return any ? value : TRANSPARENT_PIXEL
     end
   end
 end
