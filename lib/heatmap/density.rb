@@ -1,14 +1,6 @@
 require 'ostruct'
 module Heatmap
   class Density < Base
-    # Group duplicate points and set each point value based on the total number of points
-    def optimize_points(points)
-      total = points.count
-      points = points.collect {|_, points| OpenStruct.new(:value => 1, :lat => points[0].lat, :lng => points[0].lng) }
-
-      return points
-    end
-
     # Colours each pixel based on the the number of nearby points, weighted by their distance to the pixel
     def render_pixel(lat, lng)
       value = 0

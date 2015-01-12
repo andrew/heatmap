@@ -59,16 +59,6 @@ module Heatmap
 
     private
 
-    def optimize_points(points)
-      # Select only the points that will have an effect on the output image
-      points.select do |point|
-        @min_lat - @options[:effect_distance] <= point.lat &&
-        @max_lat + @options[:effect_distance] >= point.lat &&
-        @min_lng - @options[:effect_distance] <= point.lng &&
-        @max_lng + @options[:effect_distance] >= point.lng
-      end
-    end
-
     # NOTE: this calculation is not accurate for extreme latitudes
     def pixel_to_ll(x,y)
       delta_lat = @max_lat-@min_lat
