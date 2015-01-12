@@ -42,8 +42,19 @@ module Heatmap
         end
       end
 
-      @pixels = pixels
+      max = pixels.flatten.max
 
+      @pixels = pixels.map do |row|
+        row.map do |pixel|
+          val = scale(pixel, max).round
+          val = 0 if val == -1
+          val
+        end
+      end
+    end
+
+    def scale(val, max)
+      ((3 - 0) * (val - 0)) / (max - 0) + 0
     end
 
     private
