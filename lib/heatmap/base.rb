@@ -13,8 +13,10 @@ module Heatmap
     #           0.25 => [0, 158, 84, 255],
     #           0    => [50, 52, 144, 255]}
 
+    attr_reader :pixels, :points
+
     def initialize(points, bounds, options = {})
-      @options = options.reverse_merge :effect_distance => 0.01, :bounds => nil
+      @options = {:effect_distance => 0.01}.merge options
 
       @min_lat, @min_lng, @max_lat, @max_lng = bounds
 
@@ -22,7 +24,7 @@ module Heatmap
       @output_height = @options[:height]
       @output_width  = @options[:width]
 
-      @points = optimize_points(points)
+      @points = points
 
       # Unless a legend has been specified, colour everything based on the max value
       if @options[:legend]
@@ -42,11 +44,12 @@ module Heatmap
       pixels = Array.new(@output_height) { Array.new(@output_width, UNPROCESSED_PIXEL) }
 
       effect_distance_in_px = ll_to_pixel(0, @options[:effect_distance])[0] - ll_to_pixel(0, 0)[0] + 1 # Round up so edges don't get clipped
+
       @points.each do |point|
-        print '.'
 
         # Only render the pixels that are affected by a point
         x, y = ll_to_pixel(point.lat, point.lng)
+
         x_range = Range.new([x - effect_distance_in_px, 0].max, [x + effect_distance_in_px, @output_width].min, true)
         y_range = Range.new([y - effect_distance_in_px, 0].max, [y + effect_distance_in_px, @output_height].min, true)
 
@@ -54,19 +57,13 @@ module Heatmap
           x_range.each do |x|
             next unless pixels[y][x] == UNPROCESSED_PIXEL # Only render each pixel once, even though renderable areas overlap
 
-            pixels[y][x] = render_pixel(*pixel_to_ll(x,y)).collect do |value|
-              (value.to_f * Magick::QuantumRange / 255).round # Scale to 16bit values
-            end
+            pixels[y][x] = render_pixel(*pixel_to_ll(x,y))
           end
         end
-
-        # Mark each site if it appears on the image
-        # pixels[y][x] = [Magick::QuantumRange, Magick::QuantumRange, Magick::QuantumRange, Magick::QuantumRange] if pixels[y] && pixels[y][x]
       end
 
-      pixels.flatten! # pixels need to be in a flat array
+      @pixels = pixels
 
-      @image = Magick::Image.constitute(@output_width, @output_height, "RGBA", pixels)
     end
 
     def image

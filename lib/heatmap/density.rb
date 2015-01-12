@@ -1,10 +1,10 @@
+require 'ostruct'
 module Heatmap
   class Density < Base
     # Group duplicate points and set each point value based on the total number of points
     def optimize_points(points)
-      points = super
       total = points.count
-      points = points.group_by(&:id).collect {|_, points| OpenStruct.new(:value => points.count, :lat => points[0].lat, :lng => points[0].lng) }
+      points = points.collect {|_, points| OpenStruct.new(:value => 1, :lat => points[0].lat, :lng => points[0].lng) }
 
       return points
     end
