@@ -11,7 +11,7 @@ module Heatmap
     attr_reader :pixels, :points
 
     def initialize(points, bounds, options = {})
-      @options = {:effect_distance => 0.01}.merge options
+      @options = {:effect_distance => 0.01, :max_intensity => 100}.merge options
 
       @min_lat, @min_lng, @max_lat, @max_lng = bounds
 
@@ -42,19 +42,17 @@ module Heatmap
         end
       end
 
-      max = pixels.flatten.max
-
       @pixels = pixels.map do |row|
         row.map do |pixel|
-          val = scale(pixel, max).round
-          val = 0 if val == -1
+          val = scale(pixel)
+          val = 0 if val < 0
           val
         end
       end
     end
 
-    def scale(val, max)
-      ((3 - 0) * (val - 0)) / (max - 0) + 0
+    def scale(val)
+      (((3 - 0) * ([val, @options[:max_intensity]].min - 0)) / (@options[:max_intensity] - 0) + 0).ceil
     end
 
     # NOTE: this calculation is not accurate for extreme latitudes
